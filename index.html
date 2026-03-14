@@ -1,9 +1,358 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Example</title>
-    </head>
-    <body>
-        <p>This is an example of a simple HTML page with one paragraph.</p>
-    </body>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/gif" href="image/icon.gif">
+    <title>Hello Stranger</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --glass-bg: rgba(20, 20, 20, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --accent: #ffffff;
+            --highlight: #5865F2; /* Color discord */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            color: var(--text-primary);
+        }
+
+        #bg-video {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            z-index: -1;
+            object-fit: cover;
+            filter: brightness(0.8) contrast(1.1);
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            width: 90%;
+            max-width: 450px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            padding: 25px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .view-counter {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .avatar-container {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 12px;
+            transition: transform 0.3s ease;
+        }
+        .avatar-container:hover { transform: scale(1.05); border-color: #fff; }
+        .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
+
+        .username { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+        .bio { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px; }
+
+        /* --- NUEVO: ESTILOS PARA LA FILA DE BOTONES --- */
+        .social-row {
+            display: flex;
+            gap: 15px; /* Espacio entre botones */
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+
+        .social-icon {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.05);
+            width: 45px; /* Botones un poco más grandes */
+            height: 45px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 12px; /* Cuadrados redondeados se ven más modernos */
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            position: relative; /* Para el tooltip */
+        }
+
+        .social-icon:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
+        }
+
+        /* Colores específicos al hacer hover (opcional) */
+        .discord-btn:hover { background: #5865F2; }
+        .twitter-btn:hover { background: #1DA1F2; }
+        .instagram-btn:hover { background: #E1306C; }
+        .github-btn:hover { background: #333; }
+
+        /* Tooltip de "Copiado" */
+        .copy-tooltip {
+            position: absolute;
+            top: -30px;
+            background: #222;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .copy-tooltip.show { opacity: 1; }
+
+        .support-btn {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            transition: background 0.2s;
+        }
+        .support-btn:hover { background: rgba(255, 255, 255, 0.1); }
+        .support-left { display: flex; align-items: center; gap: 12px; }
+        .heart-icon { background: rgba(255,255,255,0.1); padding: 8px; border-radius: 8px; }
+        .support-text h4 { font-size: 0.9rem; font-weight: 600; }
+        .support-text p { font-size: 0.75rem; color: var(--text-secondary); }
+
+        .music-player {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 15px;
+        }
+        .song-info { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; overflow: hidden; }
+        .album-icon { font-size: 1.2rem; color: var(--text-secondary); }
+        .scrolling-text { white-space: nowrap; overflow: hidden; width: 100%; position: relative; }
+        .scrolling-text span { display: inline-block; font-size: 0.85rem; font-weight: 600; animation: scroll 10s linear infinite; }
+        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+        .controls-area { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .time { font-size: 0.75rem; font-family: monospace; color: var(--text-secondary); width: 40px; }
+        .progress-container { flex-grow: 1; height: 4px; background: rgba(255, 255, 255, 0.2); border-radius: 2px; cursor: pointer; position: relative; }
+        .progress-bar { height: 100%; background: #fff; width: 0%; border-radius: 2px; position: relative; }
+        .progress-bar::after { content: ''; position: absolute; right: -4px; top: -3px; width: 10px; height: 10px; background: white; border-radius: 50%; box-shadow: 0 0 5px rgba(0,0,0,0.5); display: none; }
+        .progress-container:hover .progress-bar::after { display: block; }
+        .control-buttons { display: flex; align-items: center; gap: 15px; }
+        .btn-control { background: none; border: none; color: white; cursor: pointer; font-size: 1rem; opacity: 0.8; transition: opacity 0.2s; }
+        .btn-control:hover { opacity: 1; }
+        .play-pause-btn { font-size: 1.2rem; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 480px) { .card { width: 95%; padding: 20px; } }
+    </style>
+</head>
+<body>
+
+    <video autoplay muted loop id="bg-video">
+        <source src="video/background.mp4" type="video/mp4">
+        You Browser Doesn't Support HTML5 Video.
+    </video>
+
+    <main class="card">
+        <div class="view-counter">
+            <span>Release v1.00</span>
+        </div>
+
+        <div class="profile-section">
+            <div class="avatar-container">
+                <img src="image/Avatar.png" alt="Avatar">
+            </div>
+            <h1 class="username">GetzeAvenue</h1>
+            <p class="bio">I connect ideas and visuals between "Avenues".</p> 
+            <div class="social-row">
+                <button class="social-icon discord-btn" onclick="copyDiscord(this)" title="getzeavenue">
+                    <i class="fa-brands fa-discord"></i>
+                    <span class="copy-tooltip">Copy!</span>
+                </button>
+                
+            <a href="https://steamcommunity.com/id/GetzeAvenue/" class="social-icon">
+                <i class="fa-brands fa-steam"></i>
+                </a>
+                <a href="https://www.instagram.com/getzeave/" class="social-icon instagram-btn">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://github.com/Getze56901" class="social-icon github-btn">
+                    <i class="fa-brands fa-github"></i>
+                </a>
+            </div>
+
+        <a href="https://www.amazon.com.mx/hz/wishlist/ls/39IV8PT0ABLZQ?ref_=wl_share" target="_blank" class="support-btn">
+            <div class="support-left">
+                <div class="heart-icon">
+                    <i class="fa-brands fa-amazon"></i>
+                </div>
+                <div class="support-text">
+                    <h4>My Amazon Wishlist</h4>
+                    <p>If u wanna gift/sponsor me smth!</p>
+                </div>
+            </div>
+            <i class="fa-solid fa-arrow-right"></i>
+        <a href="" target="_blank" class="support-btn">
+            <div class="support-left">
+                <div class="heart-icon">
+                    <i class=""></i>
+                </div>
+                <div class="support-text">
+                    <h4>Coming Soon</h4>
+                    <p>Under Construction</p>
+                </div>
+            </div>
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+
+        <div class="music-player">
+            <div class="song-info">
+                <i class="fa-solid fa-volume-high album-icon"></i>
+                <div class="scrolling-text">
+                    <span>Ether Second &nbsp;&nbsp;&nbsp; • &nbsp;&nbsp;&nbsp; Akira Complex</span>
+                </div>
+            </div>
+
+            <div class="controls-area">
+                <span class="time" id="current-time">00:00</span>
+                
+                <div class="progress-container" id="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+
+                <span class="time" id="duration">02:07</span>
+            </div>
+
+            <div class="controls-area" style="justify-content: flex-end; margin-top: 10px;">
+                <div class="control-buttons">
+                    <button class="btn-control"><i class="fa-solid fa-backward-step"></i></button>
+                    <button class="btn-control play-pause-btn" id="play-btn"><i class="fa-solid fa-play"></i></button>
+                    <button class="btn-control"><i class="fa-solid fa-forward-step"></i></button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    <audio id="audio-player" src="music/music.mp3"></audio>
+
+    <script>
+        function copyDiscord(btnElement) {
+            const username = "getzeavenue";
+            const el = document.createElement('textarea');
+            el.value = username;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            const tooltip = btnElement.querySelector('.copy-tooltip');
+            tooltip.classList.add('show');
+            setTimeout(() => {
+                tooltip.classList.remove('show');
+            }, 2000);
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const audio = document.getElementById('audio-player');
+            const playBtn = document.getElementById('play-btn');
+            const playIcon = playBtn.querySelector('i');
+            const progressBar = document.getElementById('progress-bar');
+            const progressContainer = document.getElementById('progress-container');
+            const currentTimeEl = document.getElementById('current-time');
+            const durationEl = document.getElementById('duration');
+
+            playBtn.addEventListener('click', () => {
+                if (audio.paused) {
+                    audio.play();
+                    playIcon.classList.remove('fa-play');
+                    playIcon.classList.add('fa-pause');
+                } else {
+                    audio.pause();
+                    playIcon.classList.remove('fa-pause');
+                    playIcon.classList.add('fa-play');
+                }
+            });
+
+            audio.addEventListener('timeupdate', updateProgress);
+            function updateProgress(e) {
+                const { duration, currentTime } = e.srcElement;
+                if (isNaN(duration)) return;
+                const progressPercent = (currentTime / duration) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+                currentTimeEl.innerText = formatTime(currentTime);
+                durationEl.innerText = formatTime(duration);
+            }
+
+            progressContainer.addEventListener('click', setProgress);
+            function setProgress(e) {
+                const width = this.clientWidth;
+                const clickX = e.offsetX;
+                const duration = audio.duration;
+                audio.currentTime = (clickX / width) * duration;
+            }
+
+            function formatTime(seconds) {
+                const min = Math.floor(seconds / 60);
+                const sec = Math.floor(seconds % 60);
+                return `${min < 10 ? '0' + min : min}:${sec < 10 ? '0' + sec : sec}`;
+            }
+
+            audio.addEventListener('ended', () => {
+                playIcon.classList.remove('fa-pause');
+                playIcon.classList.add('fa-play');
+                progressBar.style.width = '0%';
+            });
+            
+            audio.onloadedmetadata = function() {
+                durationEl.innerText = formatTime(audio.duration);
+            };
+        });
+    </script>
+</body>
 </html>
